@@ -1,67 +1,58 @@
 package com.app.carteirinha.vencedores.entities;
 
 import com.app.carteirinha.vencedores.enums.Role;
-import com.app.carteirinha.vencedores.enums.Status;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.annotation.processing.Generated;
+import java.util.UUID;
 
+// "users" e nao "user": USER e palavra reservada no PostgreSQL.
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Column(unique = true, nullable = false)
+    /** Somente digitos (11), sem pontos e traco. */
+    @Column(nullable = false, unique = true, length = 11)
     private String cpf;
 
+    /** Sempre o hash (BCrypt/Argon2), nunca a senha em texto puro. */
     @Column(nullable = false)
-    private String password;
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.MEMBER;
 
-    public User() {
-    }
+    /**
+     * Member 1 --- 0..1 User (coluna member_id).
+     * A FK fica aqui: um Member sem login simplesmente nao tem linha em users.
+     */
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(nullable = false, unique = true)
+    private Member member;
 
-    public User(Long id, String cpf, String password) {
-        this.id = id;
-        this.cpf = cpf;
-        this.password = password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    /** Church 1 --- N User (coluna church_id) */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(nullable = false)
+    private Church church;
 }
