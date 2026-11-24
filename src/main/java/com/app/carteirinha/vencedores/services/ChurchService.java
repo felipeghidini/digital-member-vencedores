@@ -26,7 +26,7 @@ public class ChurchService {
     }
 
     @Transactional(readOnly = true)
-    public ChurchResponseDTO findById(UUID id) {
+    public ChurchResponseDTO findById(Long id) {
         return ChurchResponseDTO.from(getEntity(id));
     }
 
@@ -38,21 +38,21 @@ public class ChurchService {
     }
 
     @Transactional
-    public ChurchResponseDTO update(UUID id, ChurchRequestDTO request) {
+    public ChurchResponseDTO update(Long id, ChurchRequestDTO request) {
         Church church = getEntity(id);
         apply(church, request);
         return ChurchResponseDTO.from(repository.save(church));
     }
 
     @Transactional
-    public void delete(UUID id) {
+    public void delete(Long id) {
         repository.delete(getEntity(id));
         repository.flush(); // força o erro de FK (409) aqui, e não só no commit
     }
 
     /** Usado também por outros services (Member, User) que precisam da entidade. */
     @Transactional(readOnly = true)
-    public Church getEntity(UUID id) {
+    public Church getEntity(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Igreja não encontrada: " + id));
     }

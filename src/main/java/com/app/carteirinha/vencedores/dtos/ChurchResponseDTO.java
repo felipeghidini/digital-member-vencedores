@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record ChurchResponseDTO(
-        UUID id,
+        Long id,
         String name,
         String city,
         String address,

@@ -34,7 +34,7 @@ public class ChurchController {
     }
 
     @GetMapping("/{id}")
-    public ChurchResponseDTO get(@PathVariable UUID id) {
+    public ChurchResponseDTO get(@PathVariable Long id) {
         return service.findById(id);
     }
 
@@ -49,12 +49,12 @@ public class ChurchController {
     }
 
     @PutMapping("/{id}")
-    public ChurchResponseDTO update(@PathVariable UUID id, @Valid @RequestBody ChurchRequestDTO request) {
+    public ChurchResponseDTO update(@PathVariable Long id, @Valid @RequestBody ChurchRequestDTO request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
