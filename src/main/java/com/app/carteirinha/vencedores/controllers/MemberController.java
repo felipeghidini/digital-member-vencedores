@@ -1,49 +1,58 @@
 package com.app.carteirinha.vencedores.controllers;
 
+import com.app.carteirinha.vencedores.dtos.MemberRequestDTO;
+import com.app.carteirinha.vencedores.dtos.MemberResponseDTO;
 import com.app.carteirinha.vencedores.entities.Member;
 import com.app.carteirinha.vencedores.enums.Cargo;
 import com.app.carteirinha.vencedores.services.MemberService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/members")
+@RequiredArgsConstructor
 public class MemberController {
 
-    @Autowired
-    private MemberService memberService;
+    private final MemberService service;
 
+    /** GET /members  ou  GET /members?churchId=1 */
     @GetMapping
-    public ResponseEntity<List<Member>> getAllMembers() {
-        return ResponseEntity.ok(memberService.getAllMembers());
+    public List<MemberResponseDTO> list(@RequestParam(required = false) Long churchId) {
+        return service.findAll(churchId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Member> getMemberById(@PathVariable Long id) {
-        return ResponseEntity.ok(memberService.getMemberById(id));
+    public MemberResponseDTO get(@PathVariable Long id) {
+        return service.findById(id);
     }
 
-    @GetMapping("/pending")
-    public ResponseEntity<List<Member>> getPendingMembers() {
-        return ResponseEntity.ok(memberService.getPendingMembers());
+    @PostMapping
+    public ResponseEntity<MemberResponseDTO> create(@Valid @RequestBody MemberRequestDTO request) {
+        MemberResponseDTO created = service.create(request);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
-    @PatchMapping("/{id}/approve")
-    public ResponseEntity<Member> approveMember(@PathVariable Long id) {
-        return ResponseEntity.ok(memberService.approveMember(id));
+    @PutMapping("/{id}")
+    public MemberResponseDTO update(@PathVariable Long id, @Valid @RequestBody MemberRequestDTO request) {
+        return service.update(id, request);
     }
 
-    @PatchMapping("/{id}/inactive")
-    public ResponseEntity<Member> inactivateMember(@PathVariable Long id) {
-        return ResponseEntity.ok(memberService.inactivateMember(id));
-    }
-
-    @PatchMapping("/{id}/cargo")
-    public ResponseEntity<Member> updateMemberCargo(@PathVariable Long id, @RequestParam Cargo cargo) {
-        return ResponseEntity.ok(memberService.updateMemberCargo(id, cargo));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

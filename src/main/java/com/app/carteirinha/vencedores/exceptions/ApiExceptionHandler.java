@@ -4,6 +4,7 @@ package com.app.carteirinha.vencedores.exceptions;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,6 +30,14 @@ public class ApiExceptionHandler {
                 HttpStatus.BAD_REQUEST, "Dados inválidos");
         problem.setProperty("errors", errors);
         return problem;
+    }
+
+    /** JSON malformado, data fora do formato AAAA-MM-DD ou valor de enum inexistente. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleUnreadable(HttpMessageNotReadableException ex) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Corpo da requisição inválido: verifique o JSON, as datas (AAAA-MM-DD) e os valores dos enums");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

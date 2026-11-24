@@ -1,15 +1,26 @@
 package com.app.carteirinha.vencedores.repositories;
 
 import com.app.carteirinha.vencedores.entities.Member;
-import com.app.carteirinha.vencedores.enums.Status;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
-@Repository
+/**
+ * Todas as consultas ignoram membros com soft delete (deletedAt preenchido).
+ * O @EntityGraph traz a igreja no mesmo SELECT (JOIN), evitando uma consulta extra por membro.
+ */
 public interface MemberRepository extends JpaRepository<Member, Long> {
-    List<Member> findByStatus(Status status);
+
+    @EntityGraph(attributePaths = "church")
+    List<Member> findAllByDeletedAtIsNull();
+
+    @EntityGraph(attributePaths = "church")
+    List<Member> findAllByChurchIdAndDeletedAtIsNull(Long churchId);
+
+    @EntityGraph(attributePaths = "church")
+    Optional<Member> findByIdAndDeletedAtIsNull(Long id);
 }
 
 

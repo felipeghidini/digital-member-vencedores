@@ -28,8 +28,8 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     /** Somente digitos (11), sem pontos e traco. */
     @Column(nullable = false, unique = true, length = 11)
